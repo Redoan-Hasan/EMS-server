@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // middlewares
-app.use(cors());
+app.use(cors({ origin: ["http://localhost:5000","http://localhost:5173"] }));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qhz4s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -27,6 +27,24 @@ async function run() {
 
     const taskCollection = client.db("EMS").collection("EMS-tasks");
     const employeeCollection = client.db("EMS").collection("EMS-employees");
+    const completedTaskCollection = client.db("EMS").collection("EMS-completedTasks");
+
+    app.post("/completedTask", async (req, res) => {
+      const completedTask = req.body;
+      console.log(completedTask);
+      const result = await completedTaskCollection.insertOne(completedTask);
+      res.send(result);
+    });
+
+    app.get("/completedTask", async (req, res) => {
+      let query = {};
+      if(req.query?.email){
+        query = {email:req.query.email};
+      }
+      const cursor = completedTaskCollection.find(query).sort({priority:1});
+      const tasks = await cursor.toArray();
+      res.send(tasks);
+    });
 
     app.post("/addEmployee", async (req, res) => {
       const newEmployee = req.body;
@@ -48,9 +66,21 @@ async function run() {
     });
 
     app.get("/addTask", async (req, res) => {
-      const cursor = taskCollection.find().sort({priority:1});
+      let query = {};
+      if(req.query?.email){
+        query = {email:req.query.email};
+      }
+      const cursor = taskCollection.find(query).sort({priority:1});
       const tasks = await cursor.toArray();
       res.send(tasks);
+    });
+
+    app.get("/addTask/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id :new ObjectId(id)};
+      const task = await taskCollection.findOne(query);
+      res.send(task);
     });
 
     app.delete("/addTask/:id", async (req, res) => {
