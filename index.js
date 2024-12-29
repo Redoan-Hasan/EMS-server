@@ -28,6 +28,20 @@ async function run() {
     const taskCollection = client.db("EMS").collection("EMS-tasks");
     const employeeCollection = client.db("EMS").collection("EMS-employees");
     const completedTaskCollection = client.db("EMS").collection("EMS-completedTasks");
+    
+    // getting all the pending tasks 
+    app.get("/allPendingTasks", async (req, res) => {
+      const result = await taskCollection.find().toArray();
+      res.send(result);
+    })
+
+    // getting all the completed tasks 
+    app.get("/allCompletedTask", async (req, res) => {
+      const result = await completedTaskCollection.find().toArray();      
+      res.send(result);
+    })
+
+
 
     app.post("/completedTask", async (req, res) => {
       const completedTask = req.body;
