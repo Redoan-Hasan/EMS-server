@@ -11,7 +11,8 @@ app.use(
     origin: [
       "https://ems-server-eight.vercel.app",
       "http://localhost:5173",
-      "https://https://ems-server-eight.vercel.app/",
+      "https://https://ems-server-eight.vercel.app",
+      "https://ems-d3e23.web.app"
     ],
   })
 );
